@@ -1,0 +1,13 @@
+#byte files
+__pycache__/
+
+#virtual environment
+venv/
+
+
+#migrations
+migrations/
+
+#environment variables
+.env
+

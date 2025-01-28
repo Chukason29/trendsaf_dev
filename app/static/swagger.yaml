@@ -1,0 +1,405 @@
+openapi: 3.0.0
+info:
+  title: trendsAF API Documentation
+  description: |
+    This API provides CRUD operations for trendsAF, allowing users to interact with the endpoints provided. Each endpoint provides typical HTTP methods such as GET, POST, PUT, and DELETE.
+  version: 1.0.0
+
+servers:
+  - url: http://206.189.116.102:5080
+
+paths:
+  /signup/registration:
+    post:
+      summary: User Registration
+      description: Registers a new user in the system.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstname:
+                  type: string
+                lastname:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Successful registration
+
+  /signup/confirm_email/{token}:
+    get:
+      summary: Confirm Email
+      description: Confirms a user’s email with the provided token.
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Email confirmed
+
+  /auth/login:
+    post:
+      summary: User Login
+      description: Logs a user into the system.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Successfully logged in
+  
+  /auth/confirmation:
+    post:
+      summary: Confirmation
+      description: Confirms a user for profile.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                company_name:
+                  type: string
+                country:
+                  type: string
+                company_type:
+                  type: string
+                company_size:
+                  type: string
+                start_year:
+                  type: string
+                annual_revenue:
+                  type: string
+                company_role:
+                  type: string
+                province:
+                  type: string
+                phone:
+                  type: string
+      responses:
+        '200':
+          description: Successfully logged in
+
+  /auth/password_reset_request:
+    post:
+      summary: Request Password Reset
+      description: Sends a password reset request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Password reset request sent
+
+  /auth/password_reset/{token}:
+    post:
+      summary: Reset Password
+      description: Resets the user’s password with the provided token.
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Password reset successful
+
+  /auth/logout:
+    post:
+      summary: User Logout
+      description: Logs a user out of the system.
+      responses:
+        '200':
+          description: Successfully logged out
+
+  /admin/crops:
+    post:
+      summary: Add Crop
+      description: Adds a new crop to the system.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                crop_category_id:
+                  type: integer
+                crop_name:
+                  type: string
+      responses:
+        '200':
+          description: Crop added successfully
+
+  /admin/countries:
+    post:
+      summary: Add Country
+      description: Adds a new country to the system.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                country_name:
+                  type: string
+                country_code:
+                  type: string
+      responses:
+        '200':
+          description: Country added successfully
+
+  /admin/countries/regions:
+    post:
+      summary: Add Region
+      description: Adds a new region to the specified country.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                country_id:
+                  type: integer
+                country_name:
+                  type: string
+                region_name:
+                  type: string
+      responses:
+        '200':
+          description: Region added successfully
+
+  /admin/cropcategories:
+    post:
+      summary: Add Crop Category
+      description: Adds a new crop category to the system.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                crop_category_name:
+                  type: string
+      responses:
+        '200':
+          description: Crop category added successfully
+
+  /admin/crops/process_state:
+    post:
+      summary: Add Crop Process State
+      description: Adds a new process state for a specific crop.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                crop_id:
+                  type: integer
+                crop_variety_id:
+                  type: integer
+                process_state:
+                  type: string
+      responses:
+        '200':
+          description: Process state added successfully
+
+  /admin/crops/variety:
+    post:
+      summary: Add Crop Variety
+      description: Adds a new variety to a specific crop.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                crop_id:
+                  type: integer
+                crop_variety_name:
+                  type: string
+      responses:
+        '200':
+          description: Crop variety added successfully
+
+  /admin/products:
+    post:
+      summary: Add Product
+      description: Adds a new product remeber
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                crop_id:
+                  type: integer
+                crop_variety_id:
+                  type: integer
+                country_id:
+                  type: integer
+                region_id:
+                  type: integer
+                price:
+                  type: number
+      responses:
+        '200':
+          description: New Product Price added successfully
+  
+  /admin/products/import:
+    post:
+      summary: Products Import
+      description: Imports Product as a CSV file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file_id:
+                  type: string
+
+      responses:
+        '200':
+          description: Product imported successfully
+  
+  /admin/import:
+    post:
+      summary: Import products Product
+      description: Imports a csv file for import
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file_id:
+                  type: string
+      responses:
+        '200':
+          description: New Product Price added successfully
+
+  /general_routes/cropcategories:
+    get:
+      summary: Get Crop Categories
+      description: Retrieves all crop categories in the system.
+      responses:
+        '200':
+          description: Successfully retrieved crop categories
+
+  /general_routes/countries:
+    get:
+      summary: Get Countries
+      description: Retrieves all countries in the system.
+      responses:
+        '200':
+          description: Successfully retrieved countries
+
+  /general_routes/regions:
+    get:
+      summary: Get Regions
+      description: Retrieves all regions for a specified country.
+      responses:
+        '200':
+          description: Successfully retrieved regions
+
+  /general_routes/crops:
+    get:
+      summary: Get Crops
+      description: Retrieves all crops in the system.
+      responses:
+        '200':
+          description: Successfully retrieved crops
+
+
+  /general_routes/crops/varieties:
+    get:
+      summary: Get Crop varieties
+      description: Retrieves all varieties for a specified crop.
+      responses:
+        '200':
+          description: Successfully retrieved varieties
+
+  /general_routes/crops/process_state:
+    get:
+      summary: Get Crop process state
+      description: Retrieves all process state of a variety for a specified crop.
+      responses:
+        '200':
+          description: Successfully retrieved process state
+
+  /user/crops/prices:
+    post:
+      summary: Get Price information
+      description: Gets price info for selected preferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                crop_id:
+                  type: integer
+                country_id:
+                  type: integer
+                duration:
+                  type: string
+      responses:
+        '200':
+          description: Get all products for specified crops in a country
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
