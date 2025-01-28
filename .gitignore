@@ -9,5 +9,5 @@ venv/
 migrations/
 
 #environment variables
-#.env
+.env
 

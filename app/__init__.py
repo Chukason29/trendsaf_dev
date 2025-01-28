@@ -59,35 +59,35 @@ def create_app(config_class=Config):
     cors.init_app(app, resources=
                   {
                       r"/auth/*": {
-                          "origins": ["http://206.189.116.102:5001", "http://206.189.116.102:5080","https://app.trendsaf.co", "http://localhost:5001","*"],
+                          "origins": ["http://46.101.27.66:5001", "http://46.101.27.66:5000","https://app.trendsaf.co", "http://localhost:5001","*"],
                           "methods": ["POST", "GET", "PUT", "PATCH", "DELETE"],
                           "allow_headers": ["Content-Type", "Authorization", "true","X-CSRF-TOKEN"], 
                           "expose_headers": ["Authorization"],
                           "supports_credentials": True,
                         },
                         r"/signup/*": {
-                          "origins": ["http://206.189.116.102:5001", "http://206.189.116.102:5080", "https://app.trendsaf.co", "http://localhost:5001","*"],
+                          "origins": ["http://46.101.27.66:5001", "http://46.101.27.66:5000", "https://app.trendsaf.co", "http://localhost:5001","*"],
                           "methods": ["POST", "GET", "PUT", "PATCH", "DELETE"],
                           "allow_headers": ["Content-Type", "Authorization", "true", "X-CSRF-TOKEN"], 
                           "expose_headers": ["Authorization"],
                           "supports_credentials": True,
                         },
                         r"/admin/*": {
-                          "origins": ["http://206.189.116.102:5001", "http://206.189.116.102:5080", "https://app.trendsaf.co", "http://localhost:5001","*"],
+                          "origins": ["http://46.101.27.66:5001", "http://46.101.27.66:5000", "https://app.trendsaf.co", "http://localhost:5001","*"],
                           "methods": ["POST", "GET", "PUT", "PATCH", "DELETE"],
                           "allow_headers": ["Content-Type", "Authorization", "true", "X-CSRF-TOKEN"], 
                           "expose_headers": ["Authorization"],
                           "supports_credentials": True,
                         },
                         r"/general_routes/*": {
-                          "origins": ["http://206.189.116.102:5001", "http://206.189.116.102:5080", "https://app.trendsaf.co", "http://localhost:5001","*"],
+                          "origins": ["http://46.101.27.66:5001", "http://46.101.27.66:5000", "https://app.trendsaf.co", "http://localhost:5001","*"],
                           "methods": ["POST", "GET", "PUT", "PATCH", "DELETE"],
                           "allow_headers": ["Content-Type", "Authorization", "true", "X-CSRF-TOKEN"], 
                           "expose_headers": ["Authorization"],
                           "supports_credentials": True,
                         },
                         r"/user/*": {
-                          "origins": ["http://206.189.116.102:5001", "http://206.189.116.102:5080", "https://app.trendsaf.co", "http://localhost:5001","*"],
+                          "origins": ["http://46.101.27.66:5001", "http://46.101.27.66:5000", "https://app.trendsaf.co", "http://localhost:5001","*"],
                           "methods": ["POST", "GET", "PUT", "PATCH", "DELETE"],
                           "allow_headers": ["Content-Type", "Authorization", "true", "X-CSRF-TOKEN"], 
                           "expose_headers": ["Authorization"],

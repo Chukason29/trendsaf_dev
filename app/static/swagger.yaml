@@ -6,7 +6,7 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://206.189.116.102:5080
+  - url: http://46.101.27.66/:5000
 
 paths:
   /signup/registration:
