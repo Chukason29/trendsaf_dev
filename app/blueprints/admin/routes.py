@@ -570,7 +570,7 @@ def import_data():
             df = pd.read_csv(csv_data)
             
         # Ensure DataFrame columns match the table structure
-        df.columns = ["crop_id","crop_variety_id", "country_id", "region_id", "price", "created_at"]
+        df.columns = ["crop_id","crop_variety_id", "country_id", "region_id", "price", "product_origin"]
         for index, row in df.iterrows():
             product = Product(
                 crop_id = row["crop_id"],
@@ -578,7 +578,7 @@ def import_data():
                 country_id=row["country_id"],
                 region_id=row["region_id"],
                 price=row["price"],
-                created_at=row["created_at"]
+                created_at=row["product_origin"]
             )
             db.session.add(product)
                 
