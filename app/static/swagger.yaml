@@ -354,6 +354,8 @@ paths:
                   type: integer
                 price:
                   type: number
+                product_origin:
+                  type: string
       responses:
         '200':
           description: New Product Price added successfully
