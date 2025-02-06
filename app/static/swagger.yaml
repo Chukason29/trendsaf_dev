@@ -149,7 +149,6 @@ paths:
         '200':
           description: Successfully logged out
 
-
   /admin/reg:
     post:
       summary: Admin Registration
@@ -171,7 +170,6 @@ paths:
       responses:
         '200':
           description: Successful registration
-
 
   /admin/reset_password/{token}:
     post:
@@ -426,7 +424,6 @@ paths:
       responses:
         '200':
           description: Successfully retrieved crops
-
 
   /general_routes/crops/varieties:
     get:
