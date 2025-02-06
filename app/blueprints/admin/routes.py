@@ -3,7 +3,8 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from flask_mail import Mail, Message
 from sqlalchemy import Column, Integer, String, and_
 from datetime import timedelta
-from ...functions import encode_id, decode_id, get_token_auth_header, generate_admin_link, is_valid_email, generate_reset_token, validate_reset_token, is_json, generate_verification_link,generate_password_link, validate_password_link
+from itsdangerous import URLSafeSerializer, URLSafeTimedSerializer
+from ...functions import encode_id, decode_id, generate_admin_link, validate_admin_link, is_valid_email, is_json
 from ...models import Users, Admins, Profile, Tokens, Crops, Countries, Regions, CropCategories, ProcessLevel, CropVariety, Product
 from ...config import Config
 from ... import bcrypt, db, mail
@@ -23,9 +24,7 @@ import requests
 admin_bp = Blueprint('admin', __name__)
 
 
-
-
-@admin_bp.route('/admin_reg', methods=['GET', 'POST'])
+@admin_bp.route('/reg', methods=['POST'])
 def admin_reg(): # The hashed uuid value will be appended to the url link
     try:
         #get json data from api body
@@ -34,12 +33,14 @@ def admin_reg(): # The hashed uuid value will be appended to the url link
             abort(415)
         
         #check if all required parameters are contained in the json body
-        if 'firstname' not in data or 'lastname' not in data or 'email' not in data or 'password' not in data:
+        if 'firstname' not in data or 'lastname' not in data or 'email' not in data:
             abort(422)
         
         message = ""
         email = html.escape(data['email'])
-        password = data["password"]
+        
+        #initial password for admin
+        admin_password = str(uuid.uuid4())[:8]  # Extracts first 8 characters
         if not is_valid_email(data['email']): #checking if email is in correct format
             return jsonify({"message": "invalid email"})
         else:
@@ -49,34 +50,34 @@ def admin_reg(): # The hashed uuid value will be appended to the url link
                 if user_email:
                     return jsonify({"exists": True, "message": "Account with email already exists"}), 400
             
-                firstname = html.escape(data['firstname'])
-                lastname = html.escape(data['lastname'])
+                admin_firstname = html.escape(data['firstname'])
+                admin_lastname = html.escape(data['lastname'])
                 #hash the password
-                hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+                admin_hashed_password = bcrypt.generate_password_hash(admin_password).decode('utf-8')
 
                 #creating a user uuid for identification
-                new_user_uuid = uuid.uuid4()
+                new_admin_uuid = uuid.uuid4()
 
                 #convert the uuid to a string and encrypt
-                encrypted_id = encode_id(str(new_user_uuid))
+                encrypted_id = encode_id(str(new_admin_uuid))
 
                 #TODO Instantiating an object of users
            
                 new_user = Admins(
-                            user_uuid = new_user_uuid, 
-                            firstname = firstname, 
-                            lastname = lastname, 
+                            admin_uuid = new_admin_uuid, 
+                            firstname = admin_firstname, 
+                            lastname = admin_lastname,
                             email = email,
-                            password = hashed_password
+                            password = admin_hashed_password
                         )
                 #message to send to the user
             
                 
                 #creating a link to be sent to mail
-                link = generate_admin_link(email)
+                admin_link = generate_admin_link(email)
                 
                 #TODO Instantiating an object of tokens and store the link in the database
-                token = Tokens(token = link, is_token_used = False)
+                token = Tokens(token = admin_link, is_token_used = False)
                 
                 #TODO persist info to the data
                 db.session.add(new_user)
@@ -85,11 +86,11 @@ def admin_reg(): # The hashed uuid value will be appended to the url link
                 
                 
                 # Render HTML template
-                html_content = render_template("admin_mail.html", link=link, firstname=firstname)
+                html_content = render_template("admin_mail.html", admin_link=admin_link, admin_firstname=admin_firstname, admin_password=admin_password)
                 #TODO send mail to user
                 #verify_mail_message = f""
                 msg = Message("Admin Password Reset",
-                    sender='victoralaegbu@gmail.com',
+                    sender='support@trendsaf.co',
                     recipients=[email])  # Change to recipient's email
                 msg.html = html_content  # Set HTML content for email
                 mail.send(msg)
@@ -107,6 +108,153 @@ def admin_reg(): # The hashed uuid value will be appended to the url link
     finally:
         db.session.close()
 
+@admin_bp.route('/confirm_email/<token>')
+def confirm_email(token):
+    try:
+        link = url_for('admin.confirm_email', token=token, _external = True)
+        
+        #TODO querying token for usage and 
+        
+        token_filter = Tokens.query.filter(and_(Tokens.token == link)).first()
+        if token_filter and token_filter.is_token_used==False:
+            email_response = validate_admin_link(token).get_json()
+            if email_response['status'] == True:
+                email = email_response['email']
+                user = Admins.query.filter(and_(Admins.email == email)).first()
+                
+                #collecting the admin' uuid
+                admin_uuid = user.admin_uuid
+                
+                #create a token using the admin's uuid
+                timed_serializer = URLSafeTimedSerializer(Config.SECRET_KEY)
+                admin_token = timed_serializer.dumps(str(admin_uuid), salt=Config.RESET_PASSWORD_SALT)
+                
+                #effect the change that the admin verification link has been used
+                token_filter.is_token_used = True
+                db.session.commit()
+                #return redirect ('http://localhost:5173/success')
+                return redirect(f"{Config.BASE_URL}/reset_password/{admin_token}")
+        else:
+            return redirect(f"{Config.BASE_URL}/confirm_email?status=False&message=link has been used")
+    except:
+        db.session.rollback()
+        return redirect(f"{Config.BASE_URL}/confirm_email?status=False&message=link has expired")
+
+@admin_bp.route('/reset_password/<token>', methods=['POST'])
+def reset_password(token):
+    try:
+        #get json data from api body
+        data = request.get_json()
+        if not is_json(data):
+            abort(415)
+        
+        #check if all required parameters are contained in the json body
+        if 'initial_password' not in data or 'new_password' not in data or 'confirm_password' not in data:
+            abort(422)
+        serializer = URLSafeTimedSerializer(Config.SECRET_KEY)
+        admin_uuid = serializer.loads(token, salt=Config.RESET_PASSWORD_SALT, max_age=3600)# 15 Minutes
+        admin_uuid = str(uuid.UUID(admin_uuid))
+        
+        initial_password = data["initial_password"]
+        new_password = data["new_password"]
+        
+        confirm_password = data["confirm_password"]
+        #TODO checked if user exits
+        user = Admins.query.filter_by(admin_uuid=admin_uuid).first()
+        if user: 
+            #TODO check if initial password matches the password in the database
+            if not (initial_password and bcrypt.check_password_hash(user.password, initial_password)):
+                return jsonify({
+                    "status" : False,
+                    "message" : "wrong initial password"
+                })
+            if new_password != confirm_password:
+                return jsonify({
+                    "status": False,
+                    "message" : "password and confirm password not same"
+                })
+        
+        else:
+            return jsonify({
+                "status" : False,
+                "message": "admin does not exist"
+            })
+        user.password = bcrypt.generate_password_hash(data["new_password"]).decode('utf-8')
+        db.session.commit()
+        return jsonify({
+            "status" : True,
+            "message": "Password reset successful" 
+        })
+    except:
+        db.session.rollback()
+        raise
+
+
+@admin_bp.route('/login', methods=['POST'])
+def login():
+    try:
+        #TODO get email and password from
+        data = request.get_json()
+        if not is_json(data):
+            abort(415)
+        if 'email' not in data or 'password' not in data:
+            abort(422)
+        email = data['email']
+        password = data["password"]
+
+        #TODO perform rate limiting
+
+        #TODO compare email and password if they are great
+        #TODO checked if user exits
+        user = Admins.query.filter_by(email=email).first()
+        if not user:
+            return jsonify({
+                "status" : False,
+                "message" : "wrong email or password",
+            })
+            #checked if there is a password match
+        if not (password and bcrypt.check_password_hash(user.password, password)):
+            return jsonify({
+                "status" : False,
+                "message" : "wrong email or password"
+            })
+        #TODO collected the uuid of the user encode it and use as the identity of the user in the JWT
+        
+        id = encode_id(str(user.admin_uuid)) #user's uuid
+        user_id = user.admin_id #user's id
+        
+       
+        if user:                 
+            #TODO create a JWT token ==> On the jwt token i will add the verification and confirmation status to the client
+            access_token = create_access_token(
+                identity=id,
+                expires_delta=timedelta(hours=24),
+                additional_claims=(
+                    {
+                        "user_role": "admin"
+                    }
+                )
+            )
+            #TODO create a crsf token and set it as a coookie
+            csrf_token = secrets.token_hex(16)
+            response = jsonify({
+                    "status": True,
+                    "access_token": access_token,
+                    "firstname": user.firstname,
+                    "lastname": user.lastname
+                })
+            #Set access_token as an HttpOnly cookie
+            response.set_cookie(
+                'access_token',
+                access_token,
+                httponly=True,  # Prevents JavaScript access
+                secure=False,    # Use True if using HTTPS
+                samesite='None' # Change based on your requirements
+            )
+
+        return response, 200       
+    except Exception as e:
+        raise
 
 @admin_bp.route('/crops/categories',  methods=['POST'])
 @jwt_required()
@@ -119,9 +267,9 @@ def cropcategories():
         auth_token = request.headers.get("Authorization").split(" ")[1]
         user_data = decode_token(auth_token, allow_expired=False)
         
-        user_query = Users.query.filter_by(user_uuid = id).first()
+        user_query = Admins.query.filter_by(admin_uuid = id).first()
         
-        if user_query and user_data['company_role'] == "Z":
+        if user_query and user_data['user_role'] == "admin":
             data = request.get_json()
             if not is_json(data):
                 abort(415)
@@ -163,9 +311,9 @@ def addcrop():
         auth_token = request.headers.get("Authorization").split(" ")[1]
         user_data = decode_token(auth_token, allow_expired=False)
         
-        user_query = Users.query.filter_by(user_uuid = id).first()
+        user_query = Admins.query.filter_by(admin_uuid = id).first()
         
-        if user_query and user_data['company_role'] == "Z":
+        if user_query and user_data['user_role'] == "admin":
             data = request.get_json()
             if not is_json(data):
                 abort(415)
@@ -207,9 +355,9 @@ def addcrop_variety():
         auth_token = request.headers.get("Authorization").split(" ")[1]
         user_data = decode_token(auth_token, allow_expired=False)
         
-        user_query = Users.query.filter_by(user_uuid = id).first()
+        user_query = Admins.query.filter_by(admin_uuid = id).first()
         
-        if user_query and user_data['company_role'] == "Z":
+        if user_query and user_data['user_role'] == "admin":
             data = request.get_json()
             if not is_json(data):
                 abort(415)
@@ -249,8 +397,8 @@ def addcountry():
         #Retrieve authorization token
         auth_token = request.headers.get("Authorization").split(" ")[1]
         user_data = decode_token(auth_token, allow_expired=False)
-        user_query = Users.query.filter_by(user_uuid = id).first()
-        if user_query and user_data['company_role'] == "Z":
+        user_query = Admins.query.filter_by(admin_uuid = id).first()
+        if user_query and user_data['user_role'] == "admin":
             data = request.get_json()
             if not is_json(data):
                 abort(415)
@@ -289,8 +437,8 @@ def addregion():
         user_data = decode_token(auth_token, allow_expired=False)
         
         
-        user_query = Users.query.filter_by(user_uuid = id).first()
-        if user_query and user_data['company_role'] == "Z":
+        user_query = Admins.query.filter_by(admin_uuid = id).first()
+        if user_query and user_data['user_role'] == "admin":
             data = request.get_json()
             
             country = request.get_json()
@@ -325,8 +473,8 @@ def process_state():
         user_data = decode_token(auth_token, allow_expired=False)
         
         
-        user_query = Users.query.filter_by(user_uuid = id).first()
-        if user_query and user_data['company_role'] == "Z":
+        user_query = Admins.query.filter_by(admin_uuid = id).first()
+        if user_query and user_data['user_role'] == "admin":
             data = request.get_json()
             
             crop = request.get_json()
@@ -362,8 +510,8 @@ def addproduct():
         user_data = decode_token(auth_token, allow_expired=False)
         
         
-        user_query = Users.query.filter_by(user_uuid = id).first()
-        if user_query and user_data['company_role'] == "Z":
+        user_query = Admins.query.filter_by(admin_uuid = id).first()
+        if user_query and user_data['user_role'] == "admin":
             data = request.get_json()
             
             country = request.get_json()
@@ -405,11 +553,9 @@ def import_data():
             abort(404)
         file_id = data["file_id"]
         api_key = Config.FILE_API_KEY
-        return jsonify({
-            "data" : api_key
-        })
+
         
-        '''file_url = f"https://www.googleapis.com/drive/v3/files/{file_id}?alt=media&key={Config.FILE_API_KEY}"
+        file_url = f"https://www.googleapis.com/drive/v3/files/{file_id}?alt=media&key={Config.FILE_API_KEY}"
         
         
         # Fetch the file content
@@ -438,7 +584,10 @@ def import_data():
                 
         db.session.commit()
 
-        return "Data imported successfully." '''
+        return jsonify({
+            "status": True,
+            "message" : "Product imported successfully"
+        })
 
     except:
         db.session.rollback()

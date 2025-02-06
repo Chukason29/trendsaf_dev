@@ -6,7 +6,7 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://46.101.27.66:5000
+  - url: http://143.110.175.227:5080
 
 paths:
   /signup/registration:
@@ -148,6 +148,76 @@ paths:
       responses:
         '200':
           description: Successfully logged out
+
+
+  /admin/reg:
+    post:
+      summary: Admin Registration
+      description: Registers a new user in the system.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstname:
+                  type: string
+                lastname:
+                  type: string
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Successful registration
+
+
+  /admin/reset_password/{token}:
+    post:
+      summary: Admin Reset password
+      description: Resets Password for admin
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                initial_password:
+                  type: string
+                new_password:
+                  type: string
+                confirm_password:
+                  type: string
+      responses:
+        '200':
+          description: Successful registration
+
+  /admin/login:
+    post:
+      summary: Admin Login
+      description: Logs an administrator in
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Successful registration
 
   /admin/crops:
     post:

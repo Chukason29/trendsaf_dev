@@ -33,7 +33,7 @@ class Config:
     MAIL_USE_SSL = False  # Do not use SSL
     MAIL_USERNAME = os.getenv('MAIL_USERNAME')  # Your Gmail username (email address)
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')  # Your Gmail password or app-specific password
-    MAIL_DEFAULT_SENDER = 'victoralaegbu@gmail.com'  # Default sender (can be the same as username)
+    MAIL_DEFAULT_SENDER = 'support@trendsaf.co'  # Default sender (can be the same as username)
     MAIL_MAX_EMAILS = None
     MAIL_ASCII_ATTACHMENTS = False
     AES_KEY = os.getenv("AES_KEY")

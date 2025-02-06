@@ -12,20 +12,6 @@ from itsdangerous import URLSafeSerializer, URLSafeTimedSerializer, SignatureExp
 from .config import Config
 
 
-data = {
-            "firstname" : "Victor",
-            "surname" : "Polycarp",
-            "email" : "chuksalaegbu@gmail.com",
-            "phone": "09039444542",
-            "role": ["aggregator"],
-            "password": "54321",
-            "street_name": "LordBridge",
-            "city": "Lome",
-            "zip": "500016",
-            "province": "Kaduna",
-            "country": "India"
-        }
-
 serializer = URLSafeSerializer(Config.AES_KEY)
 timed_serializer = URLSafeTimedSerializer(Config.AES_KEY)
 
@@ -42,10 +28,6 @@ def generate_verification_link(email):
     link = url_for('signup.confirm_email', token=token, _external=True)
     return link
 
-def generate_admin_link(email):
-    token = timed_serializer.dumps(email, salt=Config.SECRET_KEY)
-    link = url_for('admin.rest_password', token=token, _external=True)
-    return link
 
 def validate_verification_link(token):
     try:
@@ -60,6 +42,27 @@ def validate_verification_link(token):
         "message": "Email is verified",
         "email" : email
     })
+    
+    
+def generate_admin_link(token):
+    token = timed_serializer.dumps(token, salt=Config.SECRET_KEY)
+    link = url_for('admin.confirm_email', token=token, _external=True)
+    return link
+
+def validate_admin_link(token):
+    try:
+        email = timed_serializer.loads(token, salt=Config.SECRET_KEY, max_age=360000)  # 1-hour expiration
+    except SignatureExpired:
+        return jsonify({
+            "status": False,
+            "message": "Expired Link"
+        })
+    return jsonify({
+        "status": True,
+        "message": "Email is verified",
+        "email" : email
+    })
+
 def generate_password_link(id):
     token = timed_serializer.dumps(id, salt=Config.SECRET_KEY)
     link = url_for('auth.pwd_link_verify', token=token, _external=True)
@@ -90,13 +93,15 @@ def generate_reset_token(user):
 def validate_reset_token(token):
     serializer = URLSafeTimedSerializer(Config.SECRET_KEY)
     try:
-        user_uuid = serializer.loads(token, salt=Config.RESET_PASSWORD_SALT, max_age=900)# 30 seconds
+        user_uuid = serializer.loads(token, salt=Config.RESET_PASSWORD_SALT, max_age=900)# 15 Minutes
         user_uuid = encode_id(str(uuid.UUID(user_uuid)))
         return jsonify({ "id": user_uuid, "status" : True})
     except SignatureExpired:
         return jsonify({"status" : False, "message" : "token has expired"})
     except BadSignature:
         return jsonify({"status" : False, "message" : "invalid token"})
+    except:
+        raise
 
     
 

@@ -58,12 +58,14 @@
         <img src="https://i.ibb.co/56TGnK5/basefood-logo.png" alt="basefood-logo" border="0">
     </div>
     <div class='content'>
-        <h2>Hello {{firstname}},</h2>
-        <p>Welcome to baseFood! Please reset your password by clicking the button below:</p>
-        <a href='{{link}}' target='_blank' class='button' style="color:#fff">Verify Email</a>
+        <h2>Hello {{admin_firstname}},</h2>
+        <p>Welcome to baseFood Admin! Please reset your password by clicking the button below:</p>
+        <a href='{{admin_link}}' target='_blank' class='button' style="color:#fff">Verify Email</a>
+        <p>You initial Password is {{admin_password}}</p>
         <p>If the button above doesn't work, you can also click on the link below or copy and paste it into your browser:</p>
-        <p><a href='{{link}}' target='_blank'>{{link}}</a></p>
+        <p><a href='{{admin_link}}' target='_blank'>{{admin_link}}</a></p>
         <p>If you didn't create an account with baseFood, please ignore this email.</p>
+
     </div>
     <div class='footer'>
         <p>&copy; 2025 trendsAf. All rights reserved.</p>

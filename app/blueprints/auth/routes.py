@@ -41,13 +41,13 @@ def login():
         if not user:
             return jsonify({
                 "status" : False,
-                "message" : "wrong email or passwordddddd",
+                "message" : "wrong email or password",
             })
             #checked if there is a password match
         if not (password and bcrypt.check_password_hash(user.password, password)):
             return jsonify({
                 "status" : False,
-                "message" : "wrong email or passwordddddd"
+                "message" : "wrong email or password"
             })
         #TODO collected the uuid of the user encode it and use as the identity of the user in the JWT
         
@@ -109,7 +109,7 @@ def login():
             #TODO send mail to user
             mail_message = "Click this link to verify your email address: " + link
             msg = Message("Confirm Registration",
-                sender='victoralaegbu@gmail.com',
+                sender='support@trendsaf.co',
                 recipients=[email])  # Change to recipient's email
             msg.body = mail_message
             mail.send(msg)
@@ -186,16 +186,17 @@ def password_reset_request():
         #TODO checked if user exits
         user = Users.query.filter_by(email=email).first()
         if user:
-            id = str(user.user_uuid)
-            link = generate_password_link(id)
             
-            #TODO Instantiating an object of tokens and store the link in th database
-            token = Tokens(token = link['link'], is_token_used = False)
+            id = str(user.user_uuid)
+            pass_link = generate_password_link(id)
+            
+            #TODO Instantiating an object of tokens and store the link in the database
+            token = Tokens(token = pass_link['link'], is_token_used = False)
             
             #TODO send mail to user
-            mail_message = "Click this link to verify your email address: " + link['link']
-            msg = Message("Confirm Registration",
-                sender='victoralaegbu@gmail.com',
+            mail_message = "Click this link to verify your email address: " + pass_link['link']
+            msg = Message("Password  Reset",
+                sender='Trendsaf Support',
                 recipients=[email])  # Change to recipient's email
             msg.body = mail_message
             mail.send(msg)
@@ -242,7 +243,7 @@ def password_reset(token):
     try:
         #TODO extract the user uuid from the token
         id = validate_password_link(token).get_json()
-        user_id = uuid.UUID(id['id'])
+        user_id = uuid.UUID(id['id'])           
         
         #TODO Collect the new password
         data = request.get_json()
@@ -274,6 +275,7 @@ def password_reset(token):
         #TODO return the appropriate value
         pass
     except Exception as e:
+        db.session.rollback()
         raise
     finally:
         pass
@@ -347,7 +349,7 @@ def confirmation():
         #TODO send confirmation email to the user
         message = "Congratulations your account has been confirmed"
         msg = Message("Registration onfirmation",
-        sender='victoralaegbu@gmail.com',
+        sender='support@trendsaf.co',
         recipients=[user_email])  # Change to recipient's email
         msg.body = message
         mail.send(msg)
@@ -387,8 +389,7 @@ def confirmation():
             secure=False,    # Use True if using HTTPS
             samesite='None' # Change based on your requirements
         )
-        return response, 200
-        
+        return response, 200     
     except Exception as e:
         db.session.rollback()
         raise
