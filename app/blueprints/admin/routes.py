@@ -569,12 +569,20 @@ def import_data():
             # Read the CSV data into a pandas DataFrame
             df = pd.read_csv(csv_data)
             
-       
-            # Convert DataFrame rows to Product objects
-            products = [Product(**row.to_dict()) for _, row in df.iterrows()]
-            # Add to database session and commit
-            db.session.bulk_save_objects(products)
-            db.session.commit()
+        # Ensure DataFrame columns match the table structure
+        df.columns = ["crop_id","crop_variety_id", "country_id", "region_id", "price", "product_origin"]
+        for index, row in df.iterrows():
+            product = Product(
+                crop_id = row["crop_id"],
+                crop_variety_id=row["crop_variety_id"],
+                country_id=row["country_id"],
+                region_id=row["region_id"],
+                price=row["price"],
+                product_origin=row["product_origin"]
+            )
+            db.session.add(product)
+                
+        db.session.commit()
 
         return jsonify({
             "status": True,
