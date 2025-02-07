@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, abort, session, make_response, url_for, redirect
+from flask import Blueprint, request, jsonify, abort, session, make_response, url_for, redirect, render_template
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_mail import Mail, Message
 from sqlalchemy import Column, Integer, String, and_
@@ -53,6 +53,7 @@ def login():
         
         id = encode_id(str(user.user_uuid)) #user's uuid
         user_id = user.user_id #user's id
+        firstname = user.firstname
         
         # When user is both verified and confirmed
         if user.is_verified == True and  user.is_confirmed == True:
@@ -107,8 +108,8 @@ def login():
             db.session.add(token)
             db.session.commit()
             #TODO send mail to user
-            mail_message = "Click this link to verify your email address: " + link
-            msg = Message("Confirm Registration",
+            mail_message = render_template("email_verification.html", link=link, firstname=firstname)
+            msg = Message("Email Verification",
                 sender='support@trendsaf.co',
                 recipients=[email])  # Change to recipient's email
             msg.body = mail_message
@@ -186,15 +187,15 @@ def password_reset_request():
         #TODO checked if user exits
         user = Users.query.filter_by(email=email).first()
         if user:
-            
             id = str(user.user_uuid)
             pass_link = generate_password_link(id)
+            firstname = user.firstname
             
             #TODO Instantiating an object of tokens and store the link in the database
             token = Tokens(token = pass_link['link'], is_token_used = False)
             
             #TODO send mail to user
-            mail_message = "Click this link to verify your email address: " + pass_link['link']
+            mail_message = render_template("password_reset.html", pass_link=pass_link, firstname=firstname)
             msg = Message("Password  Reset",
                 sender='Trendsaf Support',
                 recipients=[email])  # Change to recipient's email
@@ -347,8 +348,8 @@ def confirmation():
 
         db.session.commit()
         #TODO send confirmation email to the user
-        message = "Congratulations your account has been confirmed"
-        msg = Message("Registration onfirmation",
+        message = render_template("confirmation_email.html", firstname=firstname, link=f"https://{Config.BASE_URL}/login")
+        msg = Message("Account Confirmation",
         sender='support@trendsaf.co',
         recipients=[user_email])  # Change to recipient's email
         msg.body = message

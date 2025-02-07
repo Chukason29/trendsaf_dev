@@ -163,8 +163,8 @@ def link_resend():
         db.session.commit()
         
         #TODO send mail to user
-        mail_message = "Click this link to verify your email address: " + link
-        msg = Message("Confirm Registration",
+        mail_message = render_template("email_verification.html", link=link, firstname=user.firstname)
+        msg = Message("Email Verification",
             sender='support@trendsaf.co',
             recipients=[email])  # Change to recipient's email
         msg.body = mail_message

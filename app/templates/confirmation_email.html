@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>BaseFood Email Verification</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .header {
+            background-color: #2245FE;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .header img{
+            width: 300px;
+        }
+        .content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .button {
+            font-family: 'Space Grotesk', sans-serif;
+            display: inline-block;
+            background-color: #2245FE;
+            color: white;
+            padding: 5px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+            background-color: #f9f9f9;
+            padding: 4px 0px;
+        }
+    </style>
+</head>
+<body>
+    <div class='header'>
+        <img src="https://i.ibb.co/56TGnK5/basefood-logo.png" alt="basefood-logo" border="0">
+    </div>
+    <div class='content'>
+        <h2>Hello {{firstname}},</h2>
+        <p>Congratulations!!!</p>
+        <p>Your Basefood Account is now confirmed and ready to use</p>
+        <p>Kindly click the button below to login into your basefood account</p>
+        <a href='{{link}}' target='_blank' class='button' style="color:#fff">Login</a>
+        <br>
+        <p>Cheers!</p>
+    </div>
+    <div class='footer'>
+        <p>&copy; 2025 trendsAf. All rights reserved.</p>
+    </div>
+</body>
+</html>
