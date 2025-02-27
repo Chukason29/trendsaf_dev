@@ -136,20 +136,20 @@ class Countries(db.Model):
     __tablename__ = "countries"
     country_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     country_name = db.Column(db.String(100), nullable=False)
-    country_code = db.Column(db.String(5), nullable=False)
+    country_code = db.Column(db.String(5), nullable=False, unique=True)
     # One country can have many products and regions
-    products = db.relationship('Product', backref="country", lazy=True)
-    regions = db.relationship('Regions', backref="country", lazy=True)
+    products = db.relationship('Product', backref="countries", lazy=True)
+    regions = db.relationship('Regions', backref="countries", lazy=True)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: pendulum.now('UTC'))
     
 class Regions(db.Model):
     __tablename__ = "regions"
     region_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    region_code = db.Column(db.String(100), nullable=False)
+    region_code = db.Column(db.String(100), nullable=False, unique=True)
     country_code = db.Column(db.String, db.ForeignKey('countries.country_code'))
     region_name = db.Column(db.String(100), nullable=False)
     # One region can have many products
-    products = db.relationship('Product', backref="region", lazy=True)
+    products = db.relationship('Product', backref="regions", lazy=True)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: pendulum.now('UTC'))
     
 class Product(db.Model):
