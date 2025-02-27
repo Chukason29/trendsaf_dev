@@ -98,34 +98,32 @@ class Tokens(db.Model):
 
 class CropCategories(db.Model):
     __tablename__ = "cropcategories"
-    crop_category_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    crop_category_name = db.Column(db.String(30), nullable=False)
-    crop = db.relationship('Crops', backref="crops", uselist=False)
+    category_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    category_code = db.Column(db.String(5), nullable=False, unique=True)
+    category_name = db.Column(db.String(30), nullable=False)
+    # One category can have many crops
+    crops = db.relationship('Crops', backref="category", lazy=True)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: pendulum.now('UTC'))
 
 class Crops(db.Model):
     __tablename__ = "crops"
     crop_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    crop_category_id = db.Column(db.Integer, db.ForeignKey('cropcategories.crop_category_id'))
+    crop_code = db.Column(db.String(5), nullable=False, unique=True)
     crop_name = db.Column(db.String(50), nullable=False)
-    crop_variety = db.relationship('CropVariety', backref="cropvariety", uselist=False)
+    category_code = db.Column(db.String, db.ForeignKey('cropcategories.category_code'))
+    
+    # One crop can have many varieties and many products
+    varieties = db.relationship('CropVariety', backref="crop", lazy=True)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: pendulum.now('UTC'))
 
 class CropVariety(db.Model):
     __tablename__ = "cropvariety"
-    crop_variety_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    crop_id = db.Column(db.Integer, db.ForeignKey('crops.crop_id'))
-    crop_variety_name = db.Column(db.String(30), nullable=False)
-    crop_variety = db.relationship('ProcessLevel', backref="process_level", uselist=False)
-    product = db.relationship('Product', backref="product", uselist=False)
-    created_at = db.Column(db.DateTime(timezone=True), default=lambda: pendulum.now('UTC'))
-
-class ProcessLevel(db.Model):
-    __tablename__ = "process_level"
-    process_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    crop_id = db.Column(db.Integer, db.ForeignKey('crops.crop_id'))
-    crop_variety_id = db.Column(db.Integer, db.ForeignKey('cropvariety.crop_variety_id'))
-    process_state = db.Column(db.String(30), nullable=False)
+    variety_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    variety_code = db.Column(db.String, db.ForeignKey('crops.crop_id'))
+    variety_name = db.Column(db.String(30), nullable=False)
+    crop_code = db.Column(db.String, db.ForeignKey('crops.crop_code'))
+    # One variety can have many process levels and many products
+    products = db.relationship('Product', backref="cropvariety", lazy=True)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: pendulum.now('UTC'))
     
 class Countries(db.Model):
@@ -133,24 +131,28 @@ class Countries(db.Model):
     country_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     country_name = db.Column(db.String(100), nullable=False)
     country_code = db.Column(db.String(5), nullable=False)
-    products = db.relationship('Product', backref="products", uselist=False)
+    # One country can have many products and regions
+    products = db.relationship('Product', backref="country", lazy=True)
+    regions = db.relationship('Regions', backref="country", lazy=True)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: pendulum.now('UTC'))
     
 class Regions(db.Model):
     __tablename__ = "regions"
     region_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    country_id = db.Column(db.Integer, db.ForeignKey('countries.country_id'))
+    region_code = db.Column(db.String(100), nullable=False)
+    country_code = db.Column(db.String, db.ForeignKey('countries.country_code'))
     region_name = db.Column(db.String(100), nullable=False)
-    products = db.relationship('Product', backref="region_product", uselist=False)
+    # One region can have many products
+    products = db.relationship('Product', backref="region", lazy=True)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: pendulum.now('UTC'))
     
 class Product(db.Model):
     __tablename__ = "product"
     product_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    crop_id = db.Column(db.Integer, db.ForeignKey('crops.crop_id'))
-    crop_variety_id = db.Column(db.Integer, db.ForeignKey('cropvariety.crop_variety_id'))
-    country_id = db.Column(db.Integer, db.ForeignKey('countries.country_id'))
-    region_id = db.Column(db.Integer, db.ForeignKey('regions.region_id'))
+    variety_code = db.Column(db.String, db.ForeignKey('cropvariety.variety_code'))
+    country_code = db.Column(db.String, db.ForeignKey('countries.country_code'))
+    region_code = db.Column(db.String, db.ForeignKey('regions.region_code'))
     product_origin = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Integer)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: pendulum.now('UTC'))
+    # Relationships (access via .crop, .cropvariety, .country, and .region)

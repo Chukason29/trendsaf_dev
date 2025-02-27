@@ -395,7 +395,7 @@ paths:
         '200':
           description: New Product Price added successfully
 
-  /general_routes/cropcategories:
+  /general_routes/crop/categories:
     get:
       summary: Get Crop Categories
       description: Retrieves all crop categories in the system.
