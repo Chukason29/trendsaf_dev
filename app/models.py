@@ -119,7 +119,7 @@ class Crops(db.Model):
 class CropVariety(db.Model):
     __tablename__ = "cropvariety"
     variety_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    variety_code = db.Column(db.String(15), nullable=False)
+    variety_code = db.Column(db.String(15), nullable=False, unique=True)
     variety_name = db.Column(db.String(30), nullable=False)
     crop_code = db.Column(db.String, db.ForeignKey('crops.crop_code'))
     # One variety can have many process levels and many products
