@@ -108,7 +108,7 @@ class CropCategories(db.Model):
 class Crops(db.Model):
     __tablename__ = "crops"
     crop_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    crop_code = db.Column(db.String(5), nullable=False, unique=True)
+    crop_code = db.Column(db.String(10), nullable=False, unique=True)
     crop_name = db.Column(db.String(50), nullable=False)
     category_code = db.Column(db.String, db.ForeignKey('cropcategories.category_code'))
     
@@ -119,7 +119,7 @@ class Crops(db.Model):
 class CropVariety(db.Model):
     __tablename__ = "cropvariety"
     variety_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    variety_code = db.Column(db.String, db.ForeignKey('crops.crop_id'))
+    variety_code = db.Column(db.String(15), nullable=False)
     variety_name = db.Column(db.String(30), nullable=False)
     crop_code = db.Column(db.String, db.ForeignKey('crops.crop_code'))
     # One variety can have many process levels and many products
