@@ -6,11 +6,11 @@ import pendulum
 
 class Users(db.Model):
     __tablename__ = "users"
-    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_uuid = db.Column(UUID(as_uuid=True), unique=True)
+    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True, index=True)
+    user_uuid = db.Column(UUID(as_uuid=True), unique=True, index=True)
     firstname = db.Column(db.String(255), nullable=False)
     lastname = db.Column(db.String(255), nullable=False)
-    email = db.Column(db.String(70), nullable=False, unique=True)
+    email = db.Column(db.String(70), nullable=False, unique=True, index=True)
     password = db.Column(db.String(1000), nullable=True)
     is_confirmed = db.Column(db.Boolean, default=False)
     is_verified = db.Column(db.Boolean, nullable=False, default=False)
@@ -25,8 +25,8 @@ class Users(db.Model):
 
 class Admins(db.Model):
     __tablename__ = "admins"
-    admin_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    admin_uuid = db.Column(UUID(as_uuid=True), unique=True)
+    admin_id = db.Column(db.Integer, primary_key=True, autoincrement=True, index=True)
+    admin_uuid = db.Column(UUID(as_uuid=True), unique=True, index=True)
     firstname = db.Column(db.String(255), nullable=False)
     lastname = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(70), nullable=False, unique=True)
@@ -34,8 +34,8 @@ class Admins(db.Model):
     
 class Profile(db.Model):
     __tablename__ = "profile"
-    profile_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id')) 
+    profile_id = db.Column(db.Integer, primary_key=True, autoincrement=True, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), index=True) 
     company_name = db.Column(db.String(100), nullable=True)
     company_type = db.Column(db.String(50), nullable=True)
     company_size = db.Column(db.String(5), nullable=True)
@@ -79,7 +79,7 @@ class PasswordTable(db.Model):
 
 class LoginTable(db.Model):
     __tablename__ = "logintable"
-    login_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    login_id = db.Column(db.Integer, primary_key=True, autoincrement=True, index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     auth_method = db.Column(db.String(50), nullable=False)
     action = db.Column(db.String(50), nullable=False)
@@ -98,8 +98,8 @@ class Tokens(db.Model):
 
 class CropCategories(db.Model):
     __tablename__ = "cropcategories"
-    category_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    category_code = db.Column(db.String(5), nullable=False, unique=True)
+    category_id = db.Column(db.Integer, primary_key=True, autoincrement=True, index=True)
+    category_code = db.Column(db.String(5), nullable=False, unique=True, index=True)
     category_name = db.Column(db.String(30), nullable=False)
     # One category can have many crops
     crops = db.relationship('Crops', backref="category", lazy=True)
@@ -107,10 +107,10 @@ class CropCategories(db.Model):
 
 class Crops(db.Model):
     __tablename__ = "crops"
-    crop_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    crop_code = db.Column(db.String(10), nullable=False, unique=True)
+    crop_id = db.Column(db.Integer, primary_key=True, autoincrement=True, index=True)
+    crop_code = db.Column(db.String(10), nullable=False, unique=True, index=True)
     crop_name = db.Column(db.String(50), nullable=False)
-    category_code = db.Column(db.String, db.ForeignKey('cropcategories.category_code'))
+    category_code = db.Column(db.String, db.ForeignKey('cropcategories.category_code'), index=True)
     
     # One crop can have many varieties and many products
     varieties = db.relationship('CropVariety', backref="crop", lazy=True)
@@ -118,25 +118,25 @@ class Crops(db.Model):
 
 class CropVariety(db.Model):
     __tablename__ = "cropvariety"
-    variety_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    variety_code = db.Column(db.String(15), nullable=False, unique=True)
+    variety_id = db.Column(db.Integer, primary_key=True, autoincrement=True, index=True)
+    variety_code = db.Column(db.String(15), nullable=False, unique=True, index=True)
     variety_name = db.Column(db.String(30), nullable=False)
-    crop_code = db.Column(db.String, db.ForeignKey('crops.crop_code'))
+    crop_code = db.Column(db.String, db.ForeignKey('crops.crop_code'), index=True)
     # One variety can have many process levels and many products
     products = db.relationship('Product', backref="cropvariety", lazy=True)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: pendulum.now('UTC'))
     
 class ProcessLevel(db.Model):
     __tablename__ = "process_level"
-    process_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    process_id = db.Column(db.Integer, primary_key=True, autoincrement=True, index=True)
     process_state = db.Column(db.String(30), nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: pendulum.now('UTC'))
     
 class Countries(db.Model):
     __tablename__ = "countries"
-    country_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    country_id = db.Column(db.Integer, primary_key=True, autoincrement=True, index=True)
     country_name = db.Column(db.String(100), nullable=False)
-    country_code = db.Column(db.String(5), nullable=False, unique=True)
+    country_code = db.Column(db.String(5), nullable=False, unique=True, index=True)
     # One country can have many products and regions
     products = db.relationship('Product', backref="countries", lazy=True)
     regions = db.relationship('Regions', backref="countries", lazy=True)
@@ -144,9 +144,9 @@ class Countries(db.Model):
     
 class Regions(db.Model):
     __tablename__ = "regions"
-    region_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    region_code = db.Column(db.String(100), nullable=False, unique=True)
-    country_code = db.Column(db.String, db.ForeignKey('countries.country_code'))
+    region_id = db.Column(db.Integer, primary_key=True, autoincrement=True, index=True)
+    region_code = db.Column(db.String(100), nullable=False, unique=True, index=True)
+    country_code = db.Column(db.String, db.ForeignKey('countries.country_code'), index=True)
     region_name = db.Column(db.String(100), nullable=False)
     # One region can have many products
     products = db.relationship('Product', backref="regions", lazy=True)

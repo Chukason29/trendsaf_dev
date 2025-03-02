@@ -271,18 +271,23 @@ def cropcategories():
         
         if user_query and user_data['user_role'] == "admin":
             data = request.get_json()
+            if not data:
+                return jsonify({"status": False, "message": "Invalid or missing JSON body"}), 400
             if not is_json(data):
                 abort(415)
-            if 'crop_category_name' not in data:
+            category_code = data.get('category_code')
+            category_name = data.get('category_name')
+            
+            if not category_code or not category_name:
                 abort(422)
-            crop_category_name = request.json.get('crop_category_name')
-            is_crop_category_exists= CropCategories.query.filter_by(crop_category_name = crop_category_name).first()
+            
+            is_crop_category_exists= CropCategories.query.filter_by(category_code = category_code).first()
             if is_crop_category_exists :
                 return jsonify({
                     "status": False,
-                    "message" : "Crop category name already exists"
+                    "message" : "Crop category code already exists"
                 })
-            new_crop_category = CropCategories(crop_category_name = crop_category_name)
+            new_crop_category = CropCategories(category_code = category_code, category_name = category_name)
             db.session.add(new_crop_category)
             db.session.commit()
             
@@ -317,17 +322,21 @@ def addcrop():
             data = request.get_json()
             if not is_json(data):
                 abort(415)
-            if 'crop_name' not in data or 'crop_category_id' not in data:
+            if 'crop_name' not in data or 'category_code' not in data or 'crop_code' not in data:
                 abort(422)
             crop_name = request.json.get('crop_name')
-            crop_category_id = request.json.get('crop_category_id')
-            is_crop_exists= Crops.query.filter_by(crop_name = crop_name).first()
+            category_code = request.json.get('category_code')
+            crop_code = request.json.get('crop_code')
+            
+            #combining crop code and category code for db crop code
+            db_crop_code = category_code + crop_code
+            is_crop_exists= Crops.query.filter_by(crop_code = crop_code).first()
             if is_crop_exists :
                 return jsonify({
                     "status": False,
-                    "message" : "Crop name already exists"
+                    "message" : "Crop Code already exists"
                 })
-            new_crop = Crops(crop_name = crop_name, crop_category_id = crop_category_id)
+            new_crop = Crops(crop_name = crop_name, crop_code = db_crop_code.upper(), category_code = category_code)
             db.session.add(new_crop)
             db.session.commit()
             
@@ -361,17 +370,21 @@ def addcrop_variety():
             data = request.get_json()
             if not is_json(data):
                 abort(415)
-            if 'crop_variety_name' not in data or 'crop_id' not in data:
+            if 'variety_name' not in data or 'crop_code' not in data or 'variety_code' not in data:
                 abort(422)
-            crop_variety_name = request.json.get('crop_variety_name')
-            crop_id = request.json.get('crop_id')
-            is_crop_exists= CropVariety.query.filter_by(crop_variety_name = crop_variety_name).first()
+            variety_name = request.json.get('variety_name')
+            variety_code = request.json.get('variety_code')
+            crop_code = request.json.get('crop_code')
+            
+            # db_variety_code is the combination of crop code and variety code
+            db_variety_code = crop_code + variety_code
+            is_crop_exists= CropVariety.query.filter_by(variety_code = db_variety_code).first()
             if is_crop_exists :
                 return jsonify({
                     "status": False,
                     "message" : "Crop variety already exists"
                 })
-            new_crop_variety = CropVariety(crop_variety_name = crop_variety_name, crop_id = crop_id)
+            new_crop_variety = CropVariety(variety_name = variety_name, crop_code = crop_code, variety_code = db_variety_code)
             db.session.add(new_crop_variety)
             db.session.commit()
             
@@ -444,11 +457,12 @@ def addregion():
             country = request.get_json()
             if not is_json(country):
                 abort(415)
-            if 'region_name' not in country or 'country_id' not in country:
+            if 'region_name' not in country or 'country_code' not in country or 'region_code' not in country:
                 abort(422)
             region_name = request.json.get('region_name')
-            country_id = request.json.get('country_id')
-            new_region = Regions(region_name = region_name, country_id = country_id)
+            country_code = request.json.get('country_code')
+            region_code = request.json.get('region_code')
+            new_region = Regions(region_name = region_name, region_code = region_code, country_code = country_code)
             db.session.add(new_region)
             db.session.commit()
             
@@ -571,13 +585,12 @@ def import_data():
             df = pd.read_csv(csv_data)
             
         # Ensure DataFrame columns match the table structure
-        df.columns = ["crop_id","crop_variety_id", "country_id", "region_id", "price", "product_origin"]
+        df.columns = ["variety_code", "country_code", "region_code", "price", "product_origin"]
         for index, row in df.iterrows():
             product = Product(
-                crop_id = row["crop_id"],
-                crop_variety_id=row["crop_variety_id"],
-                country_id=row["country_id"],
-                region_id=row["region_id"],
+                variety_code=row["variety_code"],
+                country_code=row["country_code"],
+                region_code=row["region_code"],
                 price=row["price"],
                 product_origin=row["product_origin"]
             )
@@ -594,23 +607,3 @@ def import_data():
         db.session.rollback()
         raise
     
-
-@admin_bp.route('/import', methods=['POST'])
-@jwt_required()
-def import_product():
-    try:
-        #get json data from api body
-        data = request.get_json()
-        if not is_json(data):
-            abort(415)
-        
-        #check if all required parameters are contained in the json body
-        if 'file_id' not in data:
-            abort(404)
-        file_id = data["file_id"]
-        api_key = Config.FILE_API_KEY
-        return jsonify({
-            "data" : api_key
-        })
-    except:
-        pass
