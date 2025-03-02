@@ -228,9 +228,11 @@ paths:
             schema:
               type: object
               properties:
-                crop_category_id:
-                  type: integer
+                category_code:
+                  type: string
                 crop_name:
+                  type: string
+                crop_code:
                   type: string
       responses:
         '200':
@@ -266,17 +268,17 @@ paths:
             schema:
               type: object
               properties:
-                country_id:
-                  type: integer
-                country_name:
+                country_code:
                   type: string
                 region_name:
+                  type: string
+                region_code:
                   type: string
       responses:
         '200':
           description: Region added successfully
 
-  /admin/cropcategories:
+  /admin/crops/categories:
     post:
       summary: Add Crop Category
       description: Adds a new crop category to the system.
@@ -287,7 +289,9 @@ paths:
             schema:
               type: object
               properties:
-                crop_category_name:
+                category_code:
+                  type: string
+                category_name:
                   type: string
       responses:
         '200':
@@ -325,9 +329,11 @@ paths:
             schema:
               type: object
               properties:
-                crop_id:
-                  type: integer
-                crop_variety_name:
+                crop_code:
+                  type: string
+                variety_name:
+                  type: string
+                variety_code:
                   type: string
       responses:
         '200':
