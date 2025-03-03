@@ -460,10 +460,10 @@ paths:
             schema:
               type: object
               properties:
-                crop_id:
-                  type: integer
-                country_id:
-                  type: integer
+                crop_code:
+                  type: string
+                country_code:
+                  type: string
                 duration:
                   type: string
       responses:
