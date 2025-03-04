@@ -146,7 +146,7 @@ class Regions(db.Model):
     __tablename__ = "regions"
     region_id = db.Column(db.Integer, primary_key=True, autoincrement=True, index=True)
     region_code = db.Column(db.String(100), nullable=False, unique=True, index=True)
-    country_code = db.Column(db.String, db.ForeignKey('countries.country_code'), index=True)
+    country_code = db.Column(db.String(5), db.ForeignKey('countries.country_code'), index=True)
     region_name = db.Column(db.String(100), nullable=False)
     # One region can have many products
     products = db.relationship('Product', backref="regions", lazy=True)
@@ -156,7 +156,7 @@ class Product(db.Model):
     __tablename__ = "product"
     product_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     variety_code = db.Column(db.String, db.ForeignKey('cropvariety.variety_code'), index=True)
-    #country_code = db.Column(db.String(5), db.ForeignKey('countries.country_code'), index=True)
+    country_code = db.Column(db.String(5), db.ForeignKey('countries.country_code'), index=True)
     region_code = db.Column(db.String, db.ForeignKey('regions.region_code'))
     product_origin = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Integer)
