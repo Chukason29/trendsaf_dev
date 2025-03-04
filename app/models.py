@@ -155,8 +155,8 @@ class Regions(db.Model):
 class Product(db.Model):
     __tablename__ = "product"
     product_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    variety_code = db.Column(db.String, db.ForeignKey('cropvariety.variety_code'))
-    country_code = db.Column(db.String, db.ForeignKey('countries.country_code'))
+    variety_code = db.Column(db.String, db.ForeignKey('cropvariety.variety_code'), index=True)
+    country_code = db.Column(db.String(5), db.ForeignKey('countries.country_code'), index=True)
     region_code = db.Column(db.String, db.ForeignKey('regions.region_code'))
     product_origin = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Integer)
