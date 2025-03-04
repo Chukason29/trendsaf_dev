@@ -14,7 +14,7 @@ def get_cropcategories():
 
 @general_bp.route('/crops', methods = ['GET'])
 def get_crops():
-    crops = Crops.query.order_by(Crops.crop_category_id.asc()).all()
+    crops = Crops.query.order_by(Crops.category_name.asc()).all()
     all_crops = [
         {
             "id": crop.crop_code, 

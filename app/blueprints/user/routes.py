@@ -37,13 +37,13 @@ def crop_prices():
         if not is_json(data):
             abort(415)
             
-        if 'crop_id' not in data or 'country_id' not in data or 'duration' not in data:
+        if 'crop_code' not in data or 'country_code' not in data or 'duration' not in data:
             abort(422)
             
         #TODO get the values of crop_variety_id and country_id
-        crop_id = data['crop_id']
-        #crop_variety_id = data['crop_variety_id']
-        country_id = data['country_id']
+        crop_code = data['crop_code']
+        #crop_variety_code = data['crop_variety_code']
+        country_code = data['country_code']
         duration = data['duration']
         #TODO get today's date using python
         now = pendulum.now()
@@ -57,21 +57,23 @@ def crop_prices():
             previous_duration = current_duration.subtract(months=1)
                 
         result = db.session.query(
-            CropVariety.crop_variety_id.label('variety_id'),
-            CropVariety.crop_variety_name.label('variety_name'),
+            CropVariety.variety_code.label('variety_code'),
+            CropVariety.variety_name.label('variety_name'),
             Product.price.label('price'),
             Regions.region_name.label('region'),
-        ).join(Product, CropVariety.crop_variety_id == Product.crop_variety_id) \
-        .join(Product, Regions.region_id == Product.region_id) \
-        .filter(Product.crop_id == crop_id) \
-        .filter(Product.country_id == country_id) \
-        .all()
+        ).join(Product, CropVariety.variety_code == Product.variety_code) \
+        .join(Product, Regions.region_code == Product.region_code) \
+        .filter(Product.crop_code == crop_code) \
+        .filter(Product.country_code == country_code) \
+        .group_by(CropVariety.variety_code)
 
         result_json = [
         {
-            "variety_id": row.variety_id,
+            "variety_code": row.variety_code,
             "variety_name": row.variety_name,
-            "region" : row.region
+            "region" : row.region,
+            "price": row.price,
+            "price-change": 0
         }
         for row in result
         ]
