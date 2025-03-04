@@ -61,10 +61,16 @@ def crop_prices():
             CropVariety.variety_name.label('variety_name'),
             Product.price.label('price'),
             Regions.region_name.label('region'),
-        ).join(Product, CropVariety.variety_code == Product.variety_code) \
-        .join(Product, Regions.region_code == Product.region_code) \
-        .filter(Product.country_code == country_code) \
-        .group_by(CropVariety.variety_code)
+        ).join(
+            Product, CropVariety.variety_code == Product.variety_code
+        ).join(
+            Regions, Regions.region_code == Product.region_code  # Fix here
+        ).filter(
+            Product.country_code == country_code
+        ).group_by(
+            CropVariety.variety_code, CropVariety.variety_name, Product.price, Regions.region_name  # Fix group_by to match SELECT columns
+        )
+
 
         result_json = [
         {
