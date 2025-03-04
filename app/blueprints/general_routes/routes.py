@@ -19,7 +19,7 @@ def get_crops():
         {
             "id": crop.crop_code, 
             "name":crop.crop_name,
-            "crop_category": crop.category_codes
+            "crop_category": crop.category_code
         } for crop in crops
     ]
     return jsonify(all_crops)
