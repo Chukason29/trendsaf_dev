@@ -63,7 +63,6 @@ def crop_prices():
             Regions.region_name.label('region'),
         ).join(Product, CropVariety.variety_code == Product.variety_code) \
         .join(Product, Regions.region_code == Product.region_code) \
-        .filter(Product.crop_code == crop_code) \
         .filter(Product.country_code == country_code) \
         .group_by(CropVariety.variety_code)
 
