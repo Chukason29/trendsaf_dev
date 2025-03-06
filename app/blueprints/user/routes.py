@@ -53,8 +53,8 @@ def crop_prices():
             previous_duration =current_duration.subtract(weeks=1)
             
             return jsonify({
-                "current_duration" : current_duration.strftime("%a, %d %b %Y %H:%M:%S GMT"),
-                "previous_duration" : previous_duration.strftime("%a, %d %b %Y %H:%M:%S GMT")
+                "current_duration" : current_duration.strftime("%a, %d %b %Y %H:%M:%S"),
+                "previous_duration" : previous_duration.strftime("%a, %d %b %Y %H:%M:%S")
             })
             
         elif duration == "month":
