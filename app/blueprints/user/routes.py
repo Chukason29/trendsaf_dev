@@ -61,6 +61,7 @@ def crop_prices():
             CropVariety.variety_name.label('variety_name'),
             Product.price.label('price'),
             Product.unit.label('unit'),
+            Product.created_at.label('created_at'),
             Regions.region_name.label('region'),
         ).join(
             Product, CropVariety.variety_code == Product.variety_code
@@ -69,7 +70,7 @@ def crop_prices():
         ).filter(
             Product.country_code == country_code
         ).group_by(
-            CropVariety.variety_code, CropVariety.variety_name, Product.price, Product.unit, Regions.region_name  # Fix group_by to match SELECT columns
+            CropVariety.variety_code, CropVariety.variety_name, Product.price, Product.unit, Product.created_at, Regions.region_name  # Fix group_by to match SELECT columns
         )
 
 
@@ -80,7 +81,8 @@ def crop_prices():
             "region" : row.region,
             "unit" : row.unit,
             "price": row.price,
-            "price-change": 0
+            "price-change": 0,
+            "created_at" : row.created_at
         }
         for row in result
         ]
