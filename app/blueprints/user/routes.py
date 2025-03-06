@@ -60,6 +60,11 @@ def crop_prices():
         elif duration == "month":   
             current_duration = now.start_of("month")
             previous_duration = current_duration.subtract(months=1)
+            
+            return jsonify({
+                "current_duration" : current_duration,
+                "previous_duration" : previous_duration
+            })
                 
         result = db.session.query(
             CropVariety.variety_code.label('variety_code'),
@@ -73,7 +78,7 @@ def crop_prices():
         ).join(
             Regions, Regions.region_code == Product.region_code  # Fix here
         ).filter (and_(
-            Product.country_code == country_code, Product.created_at <= previous_duration
+            Product.country_code == country_code, Product.created_at >= previous_duration
         )).group_by(
             CropVariety.variety_code, CropVariety.variety_name, Product.price, Product.unit, Product.created_at, Regions.region_name  # Fix group_by to match SELECT columns
         )
