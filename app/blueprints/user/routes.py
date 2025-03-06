@@ -3,7 +3,7 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from flask_mail import Mail, Message
 from sqlalchemy import Column, Integer, String, and_, func
 from sqlalchemy.orm import joinedload
-from datetime import timedelta
+from datetime import timedelta, datetime
 from ...functions import encode_id, decode_id, get_token_auth_header, generate_reset_token, validate_reset_token, is_json, generate_verification_link,generate_password_link, validate_password_link
 from ...models import Users, Profile, Tokens, Crops, Countries, Regions, CropCategories, CropVariety, Product
 from ...config import Config
