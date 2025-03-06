@@ -60,6 +60,7 @@ def crop_prices():
             CropVariety.variety_code.label('variety_code'),
             CropVariety.variety_name.label('variety_name'),
             Product.price.label('price'),
+            Product.unit.label('unit'),
             Regions.region_name.label('region'),
         ).join(
             Product, CropVariety.variety_code == Product.variety_code
