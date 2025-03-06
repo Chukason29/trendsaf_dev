@@ -77,6 +77,7 @@ def crop_prices():
             "variety_code": row.variety_code,
             "variety_name": row.variety_name,
             "region" : row.region,
+            "unit" : row.unit,
             "price": row.price,
             "price-change": 0
         }
