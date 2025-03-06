@@ -585,14 +585,15 @@ def import_data():
             df = pd.read_csv(csv_data)
             
         # Ensure DataFrame columns match the table structure
-        df.columns = ["variety_code", "country_code", "region_code", "price", "product_origin"]
+        df.columns = ["variety_code", "country_code", "region_code", "price", "product_origin", "unit"]
         for index, row in df.iterrows():
             product = Product(
                 variety_code=row["variety_code"],
                 country_code=row["country_code"],
                 region_code=row["region_code"],
                 price=row["price"],
-                product_origin=row["product_origin"]
+                product_origin=row["product_origin"],
+                unit = row["unit"]
             )
             db.session.add(product)
                 
