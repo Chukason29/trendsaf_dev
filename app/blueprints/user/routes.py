@@ -49,8 +49,8 @@ def crop_prices():
         now = pendulum.now()
         
         if duration == "week":   
-            current_duration = datetime.strptime(now.start_of("week").subtract(days=1), "%a, %d %b %Y %H:%M:%S %Z")
-            previous_duration = datetime.strptime(current_duration.subtract(weeks=1), "%a, %d %b %Y %H:%M:%S %Z")
+            current_duration = datetime.datetime.strptime(now.start_of("week").subtract(days=1), "%a, %d %b %Y %H:%M:%S %Z")
+            previous_duration = datetime.datetime.strptime(current_duration.subtract(weeks=1), "%a, %d %b %Y %H:%M:%S %Z")
             
             return jsonify({
                 "current_duration" : current_duration,
@@ -58,8 +58,8 @@ def crop_prices():
             })
             
         elif duration == "month":   
-            current_duration = datetime.strptime(now.start_of("month"), "%a, %d %b %Y %H:%M:%S %Z")
-            previous_duration = datetime.strptime(current_duration.subtract(months=1), "%a, %d %b %Y %H:%M:%S %Z")
+            current_duration = datetime.datetime.strptime(now.start_of("month"), "%a, %d %b %Y %H:%M:%S %Z")
+            previous_duration = datetime.datetime.strptime(current_duration.subtract(months=1), "%a, %d %b %Y %H:%M:%S %Z")
                 
         result = db.session.query(
             CropVariety.variety_code.label('variety_code'),
