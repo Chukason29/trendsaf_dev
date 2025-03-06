@@ -49,8 +49,8 @@ def crop_prices():
         now = pendulum.now()
         
         if duration == "week":   
-            current_duration = datetime.datetime.strptime(now.start_of("week").subtract(days=1).strftime("%A, %B %d, %Y"), "%a, %d %b %Y")
-            previous_duration = datetime.datetime.strptime(current_duration.subtract(weeks=1).strftime("%A, %B %d, %Y"), "%a, %d %b %Y")
+            current_duration = datetime.datetime.strptime(now.start_of("week").subtract(days=1).strftime("%A, %B %d, %Y"), "A, %B %d, %Y")
+            previous_duration = datetime.datetime.strptime(current_duration.subtract(weeks=1).strftime("%A, %B %d, %Y"), "A, %B %d, %Y")
             
             return jsonify({
                 "current_duration" : current_duration,
@@ -58,8 +58,8 @@ def crop_prices():
             })
             
         elif duration == "month":
-            current_duration = datetime.datetime.strptime(now.start_of("month").strftime("%A, %B %d, %Y"), "%a, %d %b %Y")
-            previous_duration = datetime.datetime.strptime(current_duration.subtract(months=1).strftime("%A, %B %d, %Y"), "%a, %d %b %Y")
+            current_duration = datetime.datetime.strptime(now.start_of("month").strftime("%A, %B %d, %Y"), "A, %B %d, %Y")
+            previous_duration = datetime.datetime.strptime(current_duration.subtract(months=1).strftime("%A, %B %d, %Y"), "A, %B %d, %Y")
                 
         result = db.session.query(
             CropVariety.variety_code.label('variety_code'),
