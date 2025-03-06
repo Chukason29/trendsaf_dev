@@ -54,7 +54,8 @@ def crop_prices():
             
             return jsonify({
                 "current_duration" : current_duration,
-                "previous_duration" : previous_duration
+                "previous_duration" : previous_duration,
+                "now" : now
             })
             
         elif duration == "month":   
@@ -63,7 +64,8 @@ def crop_prices():
             
             return jsonify({
                 "current_duration" : current_duration,
-                "previous_duration" : previous_duration
+                "previous_duration" : previous_duration,
+                "now" : now
             })
                 
         result = db.session.query(
