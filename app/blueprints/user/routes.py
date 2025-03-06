@@ -67,9 +67,9 @@ def crop_prices():
             Product, CropVariety.variety_code == Product.variety_code
         ).join(
             Regions, Regions.region_code == Product.region_code  # Fix here
-        ).filter(
-            Product.country_code == country_code
-        ).group_by(
+        ).filter (and_(
+            Product.country_code == country_code, Product.created_at <= previous_duration
+        )).group_by(
             CropVariety.variety_code, CropVariety.variety_name, Product.price, Product.unit, Product.created_at, Regions.region_name  # Fix group_by to match SELECT columns
         )
 
@@ -86,6 +86,8 @@ def crop_prices():
         }
         for row in result
         ]
+        
+        
         return jsonify(result_json)  
         
     except:
