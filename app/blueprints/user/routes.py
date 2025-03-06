@@ -69,7 +69,7 @@ def crop_prices():
         ).filter(
             Product.country_code == country_code
         ).group_by(
-            CropVariety.variety_code, CropVariety.variety_name, Product.price, Regions.region_name  # Fix group_by to match SELECT columns
+            CropVariety.variety_code, CropVariety.variety_name, Product.price, Product.unit, Regions.region_name  # Fix group_by to match SELECT columns
         )
 
 
