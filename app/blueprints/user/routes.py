@@ -49,12 +49,12 @@ def crop_prices():
         now = pendulum.now()
         
         if duration == "week":   
-            current_duration =now.start_of("week").subtract(days=1).strftime("%a, %d %b %Y %H:%M:%S GMT")
-            previous_duration =current_duration.subtract(weeks=1).strftime("%a, %d %b %Y %H:%M:%S GMT")
+            current_duration =now.start_of("week").subtract(days=1)
+            previous_duration =current_duration.subtract(weeks=1)
             
             return jsonify({
-                "current_duration" : current_duration,
-                "previous_duration" : previous_duration
+                "current_duration" : current_duration.strftime("%a, %d %b %Y %H:%M:%S GMT"),
+                "previous_duration" : previous_duration.strftime("%a, %d %b %Y %H:%M:%S GMT")
             })
             
         elif duration == "month":
