@@ -49,12 +49,14 @@ def crop_prices():
         now = pendulum.now()
         date_format = "%a, %d %b %Y %H:%M:%S"
         if duration == "week":   
-            current_duration =now.start_of("week").subtract(days=1)            
+            current_duration =now.start_of("week").subtract(days=1) 
+            previous_duration =current_duration.subtract(weeks=1)
+            
+                       
             current_duration = current_duration.strftime("%a, %d %b %Y %H:%M:%S")
             current_duration = datetime.datetime.strptime(current_duration, date_format)
             current_duration = int(current_duration.timestamp())
             
-            previous_duration =previous_duration.subtract(weeks=1)
             previous_duration = previous_duration.strftime("%a, %d %b %Y %H:%M:%S")
             previous_duration = datetime.datetime.strptime(previous_duration, date_format)
             previous_duration = int(previous_duration.timestamp())
