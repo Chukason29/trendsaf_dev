@@ -160,5 +160,6 @@ class Product(db.Model):
     region_code = db.Column(db.String, db.ForeignKey('regions.region_code'))
     product_origin = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Integer)
+    unit = db.Column(db.String(10))
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: pendulum.now('UTC'))
     # Relationships (access via .crop, .cropvariety, .country, and .region)
